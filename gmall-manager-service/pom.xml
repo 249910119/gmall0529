@@ -10,10 +10,13 @@
     <groupId>com.atguigu.gmall</groupId>
     <artifactId>gmall-manager-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <name>gmall-manager-service</name>
     <description>后台管理服务</description>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
     </properties>
 
