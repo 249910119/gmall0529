@@ -2,5 +2,6 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="J:\gmallTest\gmall0529\fastdfs-client-java" vcs="Git" />
   </component>
 </project>

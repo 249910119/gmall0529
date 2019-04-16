@@ -20,4 +20,6 @@ public interface BaseAttrInfoService {
      * @return
      */
     public List<BaseAttrValue> getBaseAttrValueByAttrId(Integer baseAttrInfoId);
+
+    public void saveOrUpdateBaseInfo(BaseAttrInfo baseAttrInfo);
 }
