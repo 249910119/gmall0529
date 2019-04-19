@@ -15,6 +15,7 @@
         <module name="gmall-manager-web" />
         <module name="gmall-movie-service" />
         <module name="gmall-search-service" />
+        <module name="gmall-search-web" />
         <module name="gmall-serviceutil" />
         <module name="gmall-user-service" />
         <module name="gmall-user-web" />

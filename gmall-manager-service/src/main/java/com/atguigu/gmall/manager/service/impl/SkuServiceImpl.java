@@ -1,10 +1,13 @@
 package com.atguigu.gmall.manager.service.impl;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
 import com.atguigu.gmall.manager.BaseAttrInfo;
+import com.atguigu.gmall.manager.SkuEsService;
 import com.atguigu.gmall.manager.SkuService;
 import com.atguigu.gmall.manager.constant.RedisCacheKeyConst;
+import com.atguigu.gmall.manager.es.SkuBaseAttrEsVo;
 import com.atguigu.gmall.manager.mapper.BaseAttrInfoMapper;
 import com.atguigu.gmall.manager.mapper.sku.SkuAttrValueMapper;
 import com.atguigu.gmall.manager.mapper.sku.SkuImageMapper;
@@ -16,9 +19,11 @@ import com.atguigu.gmall.manager.spu.SpuSaleAttr;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -46,6 +51,21 @@ public class SkuServiceImpl implements SkuService {
 
     @Autowired
     JedisPool jedisPool;
+
+    @Reference
+    SkuEsService skuEsService;
+
+    //增加商品热度信息
+    @Async
+    @Override
+    public void incrSkuHotScore(Integer skuId) {
+        Jedis jedis = jedisPool.getResource();
+        Long hincrBy = jedis.hincrBy(RedisCacheKeyConst.SKU_HOT_SCORE, skuId + "", 1);
+        if(hincrBy % 3 == 0){
+            //更新ES的热度
+            skuEsService.updateHotScore(skuId,hincrBy);
+        }
+    }
 
     @Override
     public List<BaseAttrInfo> getBaseAttrInfoByCatalog3Id(Integer catalog3Id) {
@@ -171,6 +191,26 @@ public class SkuServiceImpl implements SkuService {
     @Override
     public List<SkuAttrValueMappingTo> getSkuAttrValueMapping(Integer spuId) {
         return skuInfoMapper.getSkuAttrValueMapping(spuId);
+    }
+
+    @Override
+    public List<SkuBaseAttrEsVo> getSkuBaseAttrValueIds(Integer skuId) {
+        List<SkuAttrValue> skuAttrValues = skuAttrValueMapper.selectList(new QueryWrapper<SkuAttrValue>().eq("sku_id", skuId));
+
+        List<SkuBaseAttrEsVo> results = new ArrayList<>();
+        for (SkuAttrValue skuAttrValue : skuAttrValues) {
+            Integer valueId = skuAttrValue.getValueId();
+            SkuBaseAttrEsVo vo = new SkuBaseAttrEsVo();
+            vo.setValueId(valueId);
+            results.add(vo);
+        }
+
+        return results;
+    }
+
+    @Override
+    public List<BaseAttrInfo> getBaseAttrInfoGroupByValueId(List<Integer> valueIds) {
+        return baseAttrInfoMapper.getBaseAttrInfoGroupByValueId(valueIds);
     }
 
     private SkuInfo getFromDb(Integer skuId){

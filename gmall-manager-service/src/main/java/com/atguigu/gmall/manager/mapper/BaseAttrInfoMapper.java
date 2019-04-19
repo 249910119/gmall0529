@@ -9,4 +9,7 @@ import java.util.List;
 public interface BaseAttrInfoMapper extends BaseMapper<BaseAttrInfo> {
 
     List<BaseAttrInfo> getBaseAttrInfoByCatalog3Id(Integer catalog3Id);
+
+    List<BaseAttrInfo> getBaseAttrInfoGroupByValueId(List<Integer> valueIds);
+
 }
